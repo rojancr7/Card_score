@@ -390,7 +390,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
       floatingActionButton: isFinished
           ? null
           : Transform.translate(
-              offset: const Offset(0, -8),
+              offset: const Offset(0, -23),
               child: FloatingActionButton.extended(
                 onPressed: () {
                   ref.read(scoreboardControllerProvider.notifier).addRound();
