@@ -161,12 +161,14 @@ class ScoreboardController extends Notifier<ScoreboardState> {
       // Refresh scores
       final updatedScores = await _repository.getScoresForGame(game.id);
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         rounds: updatedRounds,
         scores: updatedScores,
         clearError: true,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(errorMessage: 'Failed to add round: $e');
     }
   }
@@ -206,6 +208,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         soundPlayed = false;
       }
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         game: updatedGame,
         rounds: updatedRounds,
@@ -217,6 +220,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         clearError: true,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(errorMessage: 'Failed to delete round: $e');
     }
   }
@@ -307,6 +311,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         soundPlayed = false;
       }
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         game: updatedGame,
         scores: updatedScores,
@@ -317,6 +322,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         clearError: true,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(errorMessage: e.toString());
       rethrow;
     }
@@ -332,9 +338,11 @@ class ScoreboardController extends Notifier<ScoreboardState> {
       await _repository.resetGame(game.id, keepPlayerNames: keepPlayerNames);
       final refreshedGame = await _repository.getGameById(game.id);
       if (refreshedGame != null) {
+        if (!ref.mounted) return;
         await _loadGameDetails(refreshedGame, isFreshlyFinished: false);
       }
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to reset game: $e',
@@ -353,8 +361,10 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         gameType: gameType,
         playerNames: playerNames,
       );
+      if (!ref.mounted) return;
       await _loadGameDetails(newGame, isFreshlyFinished: false);
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to start new game: $e',
@@ -382,6 +392,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
 
       _audioService.playGameOverAlert();
 
+      if (!ref.mounted) return;
       state = state.copyWith(
         game: updatedGame,
         winningPlayerIds: winners,
@@ -390,6 +401,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         clearError: true,
       );
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(errorMessage: 'Failed to finish game: $e');
     }
   }

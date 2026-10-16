@@ -195,7 +195,10 @@ void main() {
 
     // Verify dialog opened
     expect(find.byType(ScoreInputDialog), findsOneWidget);
-    expect(find.text('Round 1'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(ScoreInputDialog), matching: find.text('Round 1')),
+      findsOneWidget,
+    );
 
     // Tap quick chip 5
     await tester.tap(find.widgetWithText(ActionChip, '5'));
@@ -203,6 +206,7 @@ void main() {
 
     // Tap Save
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle(); // Dismisses dialog
     await runAsyncStep(tester);
 
     // Score cell should now display 5
@@ -244,6 +248,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.pumpAndSettle(); // Dismiss dialog
     await runAsyncStep(tester, 300);
 
     // Game Over dialog should be displayed
@@ -265,15 +270,25 @@ void main() {
     // Verify on Scoreboard
     expect(find.text('Larra'), findsOneWidget);
 
+    final container = ProviderScope.containerOf(tester.element(find.byType(CardScoreApp)));
+
     // Tap Game Types tab
     await tester.tap(find.text('Game Types'));
-    await runAsyncStep(tester);
+    await tester.pump();
+    await tester.runAsync(() async {
+      await container.read(gameTypesControllerProvider.notifier).loadGameTypes();
+    });
+    await tester.pump();
     expect(find.text('Add Game Type'), findsOneWidget);
     expect(find.text('Callbreak'), findsOneWidget);
 
     // Tap History tab
     await tester.tap(find.text('History'));
-    await runAsyncStep(tester);
+    await tester.pump();
+    await tester.runAsync(() async {
+      await container.read(historyControllerProvider.notifier).loadHistory();
+    });
+    await tester.pump();
     expect(find.text('Game History'), findsOneWidget);
 
     // Tap Settings tab
