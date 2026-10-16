@@ -6,6 +6,8 @@ import 'package:card_score/app.dart';
 import 'package:card_score/core/audio/audio_service.dart';
 import 'package:card_score/core/constants/app_constants.dart';
 import 'package:card_score/core/database/database_service.dart';
+import 'package:card_score/features/games/presentation/game_types_controller.dart';
+import 'package:card_score/features/history/presentation/history_controller.dart';
 import 'package:card_score/features/scoreboard/data/game_repository.dart';
 import 'package:card_score/features/scoreboard/presentation/scoreboard_controller.dart';
 import 'package:card_score/features/scoreboard/presentation/widgets/score_input_dialog.dart';

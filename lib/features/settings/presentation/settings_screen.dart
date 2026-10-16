@@ -204,7 +204,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Version 1.0.0\n100% Offline Card Game Scorekeeper.\nSupports Larra, Callbreak, Marriage, and Custom Games.',
+                    'Version 1.0.0+1\n100% Offline Card Game Scorekeeper.\nSupports Larra, Callbreak, Marriage, and Custom Games.\n this app is 100% ofline and made by RB Company. \n Say Thannks to Rojan Bhattarai',
                     style: TextStyle(fontSize: 13, height: 1.5, color: Colors.grey),
                   ),
                 ],

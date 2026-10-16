@@ -13,10 +13,7 @@ import 'widgets/score_table_widget.dart';
 class ScoreboardScreen extends ConsumerStatefulWidget {
   final VoidCallback onOpenHistory;
 
-  const ScoreboardScreen({
-    super.key,
-    required this.onOpenHistory,
-  });
+  const ScoreboardScreen({super.key, required this.onOpenHistory});
 
   @override
   ConsumerState<ScoreboardScreen> createState() => _ScoreboardScreenState();
@@ -26,9 +23,11 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final state = ref.read(scoreboardControllerProvider);
+
         if (state.game == null) {
           ref.read(scoreboardControllerProvider.notifier).initialize();
         }
@@ -38,6 +37,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
 
   void _checkAndShowGameOverDialog() {
     final state = ref.read(scoreboardControllerProvider);
+
     if (state.showGameOverDialog && state.game != null) {
       final winningPlayers = state.players
           .where((p) => state.winningPlayerIds.contains(p.id))
@@ -50,14 +50,20 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
         winningPlayers: winningPlayers,
         totals: state.totals,
         onViewScoreboard: () {
-          ref.read(scoreboardControllerProvider.notifier).dismissGameOverDialog();
+          ref
+              .read(scoreboardControllerProvider.notifier)
+              .dismissGameOverDialog();
         },
         onNewGame: () {
-          ref.read(scoreboardControllerProvider.notifier).dismissGameOverDialog();
+          ref
+              .read(scoreboardControllerProvider.notifier)
+              .dismissGameOverDialog();
           _showNewGameDialog();
         },
         onOpenHistory: () {
-          ref.read(scoreboardControllerProvider.notifier).dismissGameOverDialog();
+          ref
+              .read(scoreboardControllerProvider.notifier)
+              .dismissGameOverDialog();
           widget.onOpenHistory();
         },
       );
@@ -77,7 +83,9 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     );
 
     if (result != null) {
-      await ref.read(scoreboardControllerProvider.notifier).startNewGame(
+      await ref
+          .read(scoreboardControllerProvider.notifier)
+          .startNewGame(
             gameType: result.gameType,
             playerNames: result.playerNames,
           );
@@ -86,6 +94,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
 
   Future<void> _showResetDialog() async {
     final choice = await ResetDialog.show(context);
+
     if (!mounted) return;
 
     if (choice == ResetChoice.keepNames) {
@@ -104,10 +113,14 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     ref.listen(scoreboardControllerProvider, (prev, next) {
       if (next.showGameOverDialog && !(prev?.showGameOverDialog ?? false)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _checkAndShowGameOverDialog();
+          if (mounted) {
+            _checkAndShowGameOverDialog();
+          }
         });
       }
-      if (next.errorMessage != null && next.errorMessage != prev?.errorMessage) {
+
+      if (next.errorMessage != null &&
+          next.errorMessage != prev?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.errorMessage!),
@@ -128,6 +141,7 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
     }
 
     final game = state.game;
+
     if (game == null) {
       return Center(
         child: Column(
@@ -136,7 +150,8 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
             const Text('No active game found.'),
             const SizedBox(height: 12),
             FilledButton(
-              onPressed: () => ref.read(scoreboardControllerProvider.notifier).initialize(),
+              onPressed: () =>
+                  ref.read(scoreboardControllerProvider.notifier).initialize(),
               child: const Text('Start Game'),
             ),
           ],
@@ -152,18 +167,27 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           children: [
             // TOP STATUS & CONTROLS BAR
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: theme.cardTheme.color,
                 border: Border(bottom: BorderSide(color: theme.dividerColor)),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  // GAME TYPE, TARGET AND STATUS
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       // Game Type Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(8),
@@ -177,20 +201,29 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      // Target Badge if configured
+
+                      // Target Badge
                       if (game.hasThreshold && game.thresholdValue != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.amber.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.amber.withValues(alpha: 0.5)),
+                            border: Border.all(
+                              color: Colors.amber.withValues(alpha: 0.5),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.flag, size: 14, color: Colors.amber),
+                              const Icon(
+                                Icons.flag,
+                                size: 14,
+                                color: Colors.amber,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 '${game.thresholdValue} pts target',
@@ -203,10 +236,13 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                             ],
                           ),
                         ),
-                      const Spacer(),
-                      // Status Badge (Active or Finished)
+
+                      // Status Badge
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: isFinished
                               ? Colors.red.withValues(alpha: 0.15)
@@ -217,7 +253,9 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              isFinished ? Icons.check_circle : Icons.play_circle_fill,
+                              isFinished
+                                  ? Icons.check_circle
+                                  : Icons.play_circle_fill,
                               size: 14,
                               color: isFinished ? Colors.red : Colors.green,
                             ),
@@ -235,56 +273,79 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  // Action buttons row
-                  Row(
-                    children: [
-                      Text(
-                        'Round ${state.rounds.length}',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                      const Spacer(),
-                      // Reset Game Action
-                      OutlinedButton.icon(
-                        onPressed: _showResetDialog,
-                        icon: const Icon(Icons.refresh, size: 16),
-                        label: const Text('Reset'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Finish Game Action (if active)
-                      if (!isFinished) ...[
+
+                  const SizedBox(height: 12),
+
+                  // RESPONSIVE ROUND LABEL AND ACTION BUTTONS
+                  Text(
+                    'Round ${state.rounds.length}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Wrap automatically moves buttons to another line
+                  // when the available screen width is insufficient.
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        // Reset Game Action
                         OutlinedButton.icon(
-                          onPressed: () => ref
-                              .read(scoreboardControllerProvider.notifier)
-                              .finishGameManually(),
-                          icon: const Icon(Icons.check, size: 16),
-                          label: const Text('Finish'),
+                          onPressed: _showResetDialog,
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: const Text('Reset'),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
                             visualDensity: VisualDensity.compact,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
-                      // New Game Action
-                      FilledButton.icon(
-                        onPressed: _showNewGameDialog,
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('New Game'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          visualDensity: VisualDensity.compact,
+
+                        // Finish Game Action
+                        if (!isFinished)
+                          OutlinedButton.icon(
+                            onPressed: () => ref
+                                .read(scoreboardControllerProvider.notifier)
+                                .finishGameManually(),
+                            icon: const Icon(Icons.check, size: 16),
+                            label: const Text('Finish'),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+
+                        // New Game Action
+                        FilledButton.icon(
+                          onPressed: _showNewGameDialog,
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('New Game'),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            visualDensity: VisualDensity.compact,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -308,7 +369,11 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
                 onSetScore: (roundId, playerId, score) {
                   ref
                       .read(scoreboardControllerProvider.notifier)
-                      .setScore(roundId: roundId, playerId: playerId, score: score);
+                      .setScore(
+                        roundId: roundId,
+                        playerId: playerId,
+                        score: score,
+                      );
                 },
                 onDeleteRound: (roundId) {
                   ref
@@ -320,15 +385,19 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
           ],
         ),
       ),
-      // FLOATING ACTION BUTTON: + ADD ROUND
+
+      // FLOATING ACTION BUTTON: ADD ROUND
       floatingActionButton: isFinished
           ? null
-          : FloatingActionButton.extended(
-              onPressed: () {
-                ref.read(scoreboardControllerProvider.notifier).addRound();
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Add Round'),
+          : Transform.translate(
+              offset: const Offset(0, -8),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  ref.read(scoreboardControllerProvider.notifier).addRound();
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Add Round'),
+              ),
             ),
     );
   }
