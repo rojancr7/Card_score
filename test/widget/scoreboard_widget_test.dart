@@ -132,13 +132,16 @@ void main() {
 
   Future<void> pumpAndLoad(WidgetTester tester) async {
     await tester.pumpWidget(createTestWidget());
+    await tester.pump();
+    final container = ProviderScope.containerOf(tester.element(find.byType(CardScoreApp)));
     await tester.runAsync(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await container.read(scoreboardControllerProvider.notifier).initialize();
     });
     await tester.pump();
   }
 
-  Future<void> runAsyncStep(WidgetTester tester, [int millis = 200]) async {
+  Future<void> runAsyncStep(WidgetTester tester, [int millis = 300]) async {
+    await tester.pump();
     await tester.runAsync(() async {
       await Future<void>.delayed(Duration(milliseconds: millis));
     });
@@ -152,10 +155,6 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
 
     await pumpAndLoad(tester);
-
-    final container = ProviderScope.containerOf(tester.element(find.byType(CardScoreApp)));
-    final debugState = container.read(scoreboardControllerProvider);
-    print('DEBUG STATE: isLoading=${debugState.isLoading}, error=${debugState.errorMessage}, game=${debugState.game?.gameTypeName}');
 
     // Verify badges
     expect(find.text(AppConstants.larraName), findsOneWidget);

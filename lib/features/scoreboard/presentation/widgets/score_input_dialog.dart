@@ -174,7 +174,6 @@ class _ScoreInputDialogState extends State<ScoreInputDialog> {
               style: TextStyle(color: colorScheme.error),
             ),
           ),
-        const Spacer(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(null),
           child: const Text('Cancel'),

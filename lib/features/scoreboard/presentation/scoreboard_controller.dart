@@ -77,8 +77,10 @@ class ScoreboardController extends Notifier<ScoreboardState> {
         game = await _repository.createNewGame(gameType: defaultType);
       }
 
+      if (!ref.mounted) return;
       await _loadGameDetails(game, isFreshlyFinished: false);
     } catch (e) {
+      if (!ref.mounted) return;
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to initialize scoreboard: $e',
@@ -104,6 +106,7 @@ class ScoreboardController extends Notifier<ScoreboardState> {
 
     final isAlreadyFinished = game.isFinished;
 
+    if (!ref.mounted) return;
     state = state.copyWith(
       game: game,
       players: players,

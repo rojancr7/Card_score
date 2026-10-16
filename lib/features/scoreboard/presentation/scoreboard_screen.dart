@@ -27,7 +27,12 @@ class _ScoreboardScreenState extends ConsumerState<ScoreboardScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(scoreboardControllerProvider.notifier).initialize();
+      if (mounted) {
+        final state = ref.read(scoreboardControllerProvider);
+        if (state.game == null) {
+          ref.read(scoreboardControllerProvider.notifier).initialize();
+        }
+      }
     });
   }
 
